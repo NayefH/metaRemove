@@ -3,6 +3,7 @@ import { ArrowDown, ArrowDownToLine, Check, CheckCheck, ChevronDown, ChevronRigh
 import { zipSync } from 'fflate'
 import { cleanMedia, cleanName, download, formatSize, inspectMedia, isVideo, MAX_FILE_SIZE, supported } from './lib/media'
 import type { MediaInfo } from './lib/media'
+import TechnologySection from './TechnologySection'
 import './App.css'
 
 type MediaFile = { id:string; file:File; url:string; state:'reading'|'ready'|'cleaning'|'clean'|'error'; status:string; info?:MediaInfo; result?:Blob; after?:MediaInfo; error?:string }
@@ -152,6 +153,7 @@ function App() {
         {files.length > 0 && <section className="actionbar"><div className="action-summary"><strong>{cleaned.length} von {files.length} bereinigt</strong><p>{formatSize(files.reduce((n,f) => n + f.file.size,0))} insgesamt</p></div><div className="action-buttons"><button className="button secondary" disabled={!cleaned.length || packing} onClick={() => void downloadAll()}>{packing ? <LoaderCircle className="spin" size={18}/> : <ArrowDownToLine size={18}/>}Alle als ZIP <span className="button-count">{cleaned.length}</span></button><button className="button primary" disabled={!ready.length || busy} onClick={() => void cleanAll()}>{busy ? <LoaderCircle className="spin" size={18}/> : <Sparkles size={18}/>}Alle bereinigen</button></div></section>}
 
         <details className="format-details"><summary>Formate und Hinweise <ChevronDown size={18}/></summary><p>JPG, PNG und WebP werden ohne Neukodierung bereinigt. Ausrichtung, Farbprofile und Animationen bleiben erhalten. Bei MP4, MOV, WebM und MKV bleiben Bild- und Tonspuren erhalten; Kapitel, Untertitel und Datenspuren werden entfernt. Das Videomodul lädt beim ersten Video etwa 32 MB.</p><p>Technische Angaben, Dateinamen und sichtbare Inhalte bleiben erhalten. In Bild- oder Tonspuren eingebettete Informationen werden nicht verändert. Die Bereinigung garantiert keine Anonymität.</p><p>Maximal 30 Dateien, 250 MB pro Datei und 500 MB pro Sitzung. Auf Geräten mit wenig Arbeitsspeicher können kleinere Dateien nötig sein.</p></details>
+        <TechnologySection />
       </main>
 
       <footer><span>MetaRemove</span><a href="https://github.com/NayefH/metaRemove" target="_blank" rel="noreferrer"><CodeXml size={18}/> GitHub <ChevronRight size={15}/></a></footer>
