@@ -4,6 +4,7 @@ test('production under a repository subpath loads local workers and cleans a Web
   page.on('request',request=>{if(request.method()!=='GET')requests.push(`${request.method()} ${request.url()}`)})
   page.on('pageerror',error=>errors.push(error.message))
   await page.goto('./')
+  await expect(page.getByRole('heading',{name:'Metadaten entfernen',exact:true})).toBeVisible()
   const files=await page.evaluate(async()=>{
     const canvas=document.createElement('canvas');canvas.width=160;canvas.height=120
     const context=canvas.getContext('2d')!;context.fillStyle='#58724c';context.fillRect(0,0,160,120)

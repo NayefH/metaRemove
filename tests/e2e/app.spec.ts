@@ -6,15 +6,20 @@ test('responsive empty workspace, help and unsupported files',async({page})=>{
   const errors:string[]=[]
   page.on('pageerror',e=>errors.push(e.message))
   await page.goto('/')
-  await expect(page.getByRole('heading',{name:'Teile den Moment. Nicht deine Metadaten.'})).toBeVisible()
-  await page.getByRole('button',{name:'So funktioniert’s'}).click()
+  await expect(page.getByRole('heading',{name:'Metadaten entfernen',exact:true})).toBeVisible()
+  await page.getByRole('button',{name:'Hilfe',exact:true}).click()
   await expect(page.getByRole('dialog')).toBeVisible()
   await page.keyboard.press('Escape')
   await expect(page.getByRole('dialog')).toHaveCount(0)
   await page.locator('input[type=file]').setInputFiles({name:'unsupported.txt',mimeType:'text/plain',buffer:Buffer.from('hello')})
   await expect(page.getByRole('alert')).toContainText('Dateiformat nicht unterstützt')
+  for(const width of [320,390,768,1024,1440]){
+    await page.setViewportSize({width,height:844})
+    expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true)
+    await expect(page.getByRole('button',{name:'Dateien auswählen',exact:true})).toBeVisible()
+    await expect(page.getByRole('button',{name:'Hilfe',exact:true})).toBeVisible()
+  }
   await page.setViewportSize({width:390,height:844})
-  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true)
   await page.screenshot({path:'artifacts/mobile.png',fullPage:true})
   await page.setViewportSize({width:1440,height:1050})
   await page.getByRole('button',{name:'Hinweis schließen'}).click()
@@ -53,6 +58,14 @@ test('real JPEG, PNG and WebP keep pixels and orientation, strip metadata, downl
   await page.locator('input[type=file]').setInputFiles(fixtures.map(f=>({name:`test.${f.format==='jpeg'?'jpg':f.format}`,mimeType:`image/${f.format}`,buffer:Buffer.from(f.bytes)})))
   await expect(page.getByText('Analysiert',{exact:true})).toHaveCount(3)
   await expect(page.getByRole('cell',{name:'PRIVATE_PERSON_1',exact:true})).toBeVisible()
+  for(const width of [320,390,768,1024,1440]){
+    await page.setViewportSize({width,height:844})
+    expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true)
+    expect(await page.locator('.metadata-table').evaluate(el=>el.scrollWidth<=el.clientWidth)).toBe(true)
+  }
+  await page.setViewportSize({width:390,height:844})
+  await page.screenshot({path:'artifacts/mobile-metadata.png',fullPage:true})
+  await page.setViewportSize({width:1440,height:1050})
   await page.getByRole('button',{name:'Alle bereinigen'}).click()
   await expect(page.locator('.file-copy .status-clean')).toHaveCount(3)
   for(const f of fixtures){
